@@ -1,5 +1,5 @@
 <script setup>
-import {ref, nextTick, computed, reactive} from 'vue';
+import {computed, nextTick, reactive, ref} from 'vue';
 import {usePage} from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -15,7 +15,7 @@ const users = ref(page.props.users);
 const filteredUsers = computed(() => users.value.filter(user => user.id !== props.user.id));
 
 let currentRoom = ref(null);
-let chatRooms = reactive(page.props.chatRooms); // replace this with actual chat room names
+let chatRooms = reactive(page.props.chatRooms);
 let currentMessage = ref('');
 let messages = ref({}); // will be an object of arrays, where the keys are room names and the values are the corresponding room's messages
 let isExpanded = ref(false); // changed default state to false
@@ -45,11 +45,34 @@ const sendMessage = async () => {
     messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
 };
 
-let toggleChat = () => {
-    isExpanded.value = !isExpanded.value
+const onMessageCreated = async ({message}) => {
+    const roomId = message.chat_room_id;
+
+    await checkAndLoad(roomId);
+    messages.value[roomId].push(message);
+
+    if (messagesRef.value) {
+        await nextTick();
+        messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
+    }
 };
 
-let switchRoom = (newRoom) => { currentRoom.value = newRoom; };
+Echo.private(`user.${props.user.id}.chat`)
+    .listen('.message.created', onMessageCreated);
+
+let toggleChat = () => isExpanded.value = !isExpanded.value;
+
+const switchRoom = async newRoom => {
+    await checkAndLoad(newRoom.id);
+    currentRoom.value = newRoom;
+};
+
+const loadMessages = async (roomId) => {
+    const {data} = (await axios.get(`/chat-rooms/${roomId}`)).data;
+    messages.value[roomId] = data.messages || [];
+};
+
+const checkAndLoad = async (roomId) => !messages.value[roomId] && await loadMessages(roomId);
 </script>
 
 
@@ -71,7 +94,7 @@ let switchRoom = (newRoom) => { currentRoom.value = newRoom; };
                 >
                     {{ room.name }}
                 </button>
-                <hr />
+                <hr/>
                 <div class="room-title">Other users:</div>
                 <button
                     class="room-btn"
@@ -84,9 +107,10 @@ let switchRoom = (newRoom) => { currentRoom.value = newRoom; };
             <div v-else class="messages" ref="messagesRef">
                 <button class="back-btn" @click="currentRoom = null">Go back</button>
                 <div
-                    class="message"
                     v-for="(message, index) in messages[currentRoom?.id]"
                     :key="index"
+                    class="message"
+                    :class="{'my-message': message.user_id === props.user.id}"
                 >
                     <p>{{ message.body }}</p>
                 </div>
@@ -161,12 +185,19 @@ let switchRoom = (newRoom) => { currentRoom.value = newRoom; };
 }
 
 .message {
+    align-self: flex-start;
     max-width: 70%;
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 10px;
     background: #f0f0f0;
     line-height: 1.5;
+}
+
+.message.my-message {
+    align-self: flex-end;
+    background: #0084ff;
+    color: white;
 }
 
 .footer {
@@ -195,7 +226,7 @@ let switchRoom = (newRoom) => { currentRoom.value = newRoom; };
 
 .input-field:focus {
     outline: none;
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
 .send-btn {
