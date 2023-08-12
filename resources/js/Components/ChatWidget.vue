@@ -8,10 +8,16 @@ const props = defineProps({
     },
 })
 
+let currentRoom = ref('');
+let chatRooms = ref(['Room 1', 'Room 2', 'Room 3']); // replace this with actual chat room names
 let currentMessage = ref('');
-let messages = ref(['Hello there, ' + props.user.name + '! How can I assist you today?']);
-let isExpanded = ref(true);
+let messages = ref({}); // will be an object of arrays, where the keys are room names and the values are the corresponding room's messages
+let isExpanded = ref(false); // changed default state to false
 let messagesRef = ref(null);
+
+chatRooms.value.forEach(room => {
+    messages.value[room] = ['Welcome to ' + room + ', ' + props.user.name + '!'];
+});
 
 const sendMessage = async () => {
     const trimmedMessage = currentMessage.value.trim();
@@ -19,35 +25,56 @@ const sendMessage = async () => {
         return;
     }
 
-    messages.value.push(trimmedMessage);
+    messages.value[currentRoom.value].push(trimmedMessage);
     currentMessage.value = '';
     await nextTick();
     messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
 };
 
-let toggleChat = () => { isExpanded.value = !isExpanded.value }
+let toggleChat = () => {
+    isExpanded.value = !isExpanded.value
+
+    if (isExpanded.value && chatRooms.value.length > 0) {
+        currentRoom.value = chatRooms.value[0];
+    }
+};
+
+let switchRoom = (newRoom) => { currentRoom.value = newRoom; };
 </script>
+
 
 <template>
     <div class="chat-widget">
         <div class="header">
-            <div>{{ props.user.name }}</div>
+            <div>{{ currentRoom ? currentRoom : props.user.name }}</div>
             <button @click="toggleChat" class="toggle-btn">
                 {{ isExpanded ? '-' : '+' }}
             </button>
         </div>
         <div class="content" v-show="isExpanded">
-            <div class="messages" ref="messagesRef">
+            <div v-if="!currentRoom" class="room-selector">
+                <div class="room-title">Select a chat room:</div>
+                <button
+                    class="room-btn"
+                    v-for="room in chatRooms"
+                    @click="switchRoom(room)"
+                >
+                    {{ room }}
+                </button>
+            </div>
+
+            <div v-else class="messages" ref="messagesRef">
+                <button class="back-btn" @click="currentRoom = ''">Go back</button>
                 <div
                     class="message"
-                    v-for="(message, index) in messages"
+                    v-for="(message, index) in messages[currentRoom]"
                     :key="index"
                 >
                     <p>{{ message }}</p>
                 </div>
             </div>
 
-            <div class="footer">
+            <div class="footer" v-if="currentRoom">
                 <input
                     type="text"
                     v-model="currentMessage"
@@ -164,5 +191,66 @@ let toggleChat = () => { isExpanded.value = !isExpanded.value }
 
 .send-btn:hover {
     background: #005999;
+}
+
+.room-selector {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 10px;
+    background-color: #f0f0f0; /* slightly dark */
+}
+
+.room-title {
+    font-weight: bold;
+    color: #272727;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.room-btn {
+    padding: 10px;
+    border-radius: 5px; /* rounded edges */
+    border: none;
+    background: #0084ff;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+    text-align: left;
+    width: 100%;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.room-btn:hover {
+    background: #005999;
+}
+
+.room-btn:focus {
+    outline: none;
+    box-shadow: 0 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn {
+    margin: 5px;
+    padding: 5px 10px;
+    border: none;
+    background: none;
+    color: #0084ff;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+/* add this to handle small screen devices */
+@media (max-width: 360px) {
+    .chat-widget {
+        width: 90%;
+        right: 5%;
+        bottom: 5%;
+    }
 }
 </style>
