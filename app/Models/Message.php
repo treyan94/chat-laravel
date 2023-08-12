@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\MessageCreatedEvent;
 use Auth;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Message extends Model
 {
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        self::created(static function (Message $message) {
+            broadcast(new MessageCreatedEvent($message))->toOthers();
+        });
+    }
 
     /* Relations */
 
