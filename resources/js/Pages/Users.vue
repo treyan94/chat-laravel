@@ -1,16 +1,10 @@
 <script setup>
-import {onMounted, ref} from "vue";
-import {router} from "@inertiajs/vue3";
+import {ref} from "vue";
+import {router, usePage} from "@inertiajs/vue3";
 import AnimatedSpinner from "../Components/AnimatedSpinner.vue";
 
-const users = ref([])
+const users = usePage().props.users
 const loading = ref(false)
-const loadUsers = async () => {
-    loading.value = true
-    axios.get('/api/users')
-        .then(({data}) => users.value = data)
-        .finally(() => loading.value = false)
-}
 
 const loginUsers = async (user) => {
     loading.value = true
@@ -19,10 +13,6 @@ const loginUsers = async (user) => {
         password: 'password',
     }).then(() => router.visit('/home'))
 }
-
-onMounted(() => {
-    loadUsers()
-})
 </script>
 
 <template>
