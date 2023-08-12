@@ -1,5 +1,6 @@
 <script setup>
-import { ref, nextTick } from 'vue';
+import {ref, nextTick, computed, reactive} from 'vue';
+import {usePage} from "@inertiajs/vue3";
 
 const props = defineProps({
     user: {
@@ -8,16 +9,17 @@ const props = defineProps({
     },
 })
 
-let currentRoom = ref('');
-let chatRooms = ref(['Room 1', 'Room 2', 'Room 3']); // replace this with actual chat room names
+const page = usePage();
+
+const users = ref(page.props.users);
+const filteredUsers = computed(() => users.value.filter(user => user.id !== props.user.id));
+
+let currentRoom = ref(null);
+let chatRooms = reactive(page.props.chatRooms); // replace this with actual chat room names
 let currentMessage = ref('');
 let messages = ref({}); // will be an object of arrays, where the keys are room names and the values are the corresponding room's messages
 let isExpanded = ref(false); // changed default state to false
 let messagesRef = ref(null);
-
-chatRooms.value.forEach(room => {
-    messages.value[room] = ['Welcome to ' + room + ', ' + props.user.name + '!'];
-});
 
 const sendMessage = async () => {
     const trimmedMessage = currentMessage.value.trim();
@@ -25,18 +27,26 @@ const sendMessage = async () => {
         return;
     }
 
-    messages.value[currentRoom.value].push(trimmedMessage);
+    const roomId = currentRoom.value.id;
+
+    const {data} = (await axios.post('/messages', {
+        body: trimmedMessage,
+        chat_room_id: roomId,
+    })).data;
+
     currentMessage.value = '';
+    // add the message to the messages object
+    if (!messages.value[roomId]) {
+        messages.value[roomId] = [];
+    }
+
+    messages.value[roomId].push(data);
     await nextTick();
     messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
 };
 
 let toggleChat = () => {
     isExpanded.value = !isExpanded.value
-
-    if (isExpanded.value && chatRooms.value.length > 0) {
-        currentRoom.value = chatRooms.value[0];
-    }
 };
 
 let switchRoom = (newRoom) => { currentRoom.value = newRoom; };
@@ -46,7 +56,7 @@ let switchRoom = (newRoom) => { currentRoom.value = newRoom; };
 <template>
     <div class="chat-widget">
         <div class="header">
-            <div>{{ currentRoom ? currentRoom : props.user.name }}</div>
+            <div>{{ currentRoom ? currentRoom.name : props.user.name }}</div>
             <button @click="toggleChat" class="toggle-btn">
                 {{ isExpanded ? '-' : '+' }}
             </button>
@@ -60,17 +70,26 @@ let switchRoom = (newRoom) => { currentRoom.value = newRoom; };
                     @click="switchRoom(room)"
                 >
                     {{ room }}
+                    {{ room.name }}
+                </button>
+                <hr />
+                <div class="room-title">Other users:</div>
+                <button
+                    class="room-btn"
+                    v-for="user in filteredUsers"
+                >
+                    {{ user.name }}
                 </button>
             </div>
 
             <div v-else class="messages" ref="messagesRef">
-                <button class="back-btn" @click="currentRoom = ''">Go back</button>
+                <button class="back-btn" @click="currentRoom = null">Go back</button>
                 <div
                     class="message"
-                    v-for="(message, index) in messages[currentRoom]"
+                    v-for="(message, index) in messages[currentRoom?.id]"
                     :key="index"
                 >
-                    <p>{{ message }}</p>
+                    <p>{{ message.body }}</p>
                 </div>
             </div>
 

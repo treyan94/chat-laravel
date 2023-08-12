@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MessageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,4 +19,6 @@ Route::get('/', [HomeController::class, 'users'])->middleware('guest')->name('us
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get('/home', [HomeController::class, 'home'])->name('home');
+
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 });
