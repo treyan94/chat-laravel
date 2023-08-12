@@ -31,6 +31,7 @@ class HandleInertiaRequests extends Middleware
     {
         return array_merge(parent::share($request), [
             'users' => fn () => User::all(['id', 'name', 'email']),
+            'chatRooms' => fn () => $request->user()?->chatRooms,
         ]);
     }
 }
