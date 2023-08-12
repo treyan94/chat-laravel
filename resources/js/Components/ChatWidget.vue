@@ -69,7 +69,6 @@ let switchRoom = (newRoom) => { currentRoom.value = newRoom; };
                     v-for="room in chatRooms"
                     @click="switchRoom(room)"
                 >
-                    {{ room }}
                     {{ room.name }}
                 </button>
                 <hr />
