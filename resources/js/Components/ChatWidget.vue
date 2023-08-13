@@ -29,9 +29,16 @@ const filteredUsers = computed(() => users.value.filter(user => {
 let currentRoom = ref(null);
 let chatRooms = reactive(page.props.chatRooms);
 let currentMessage = ref('');
-let messages = ref({}); // will be an object of arrays, where the keys are room names and the values are the corresponding room's messages
-let isExpanded = ref(false); // changed default state to false
+let messages = ref({});
+let isExpanded = ref(false);
+
 let messagesRef = ref(null);
+const scrollToBottom = async () => {
+    await nextTick();
+    if (messagesRef.value) {
+        messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
+    }
+};
 
 const sendMessage = async () => {
     const trimmedMessage = currentMessage.value.trim();
@@ -53,8 +60,7 @@ const sendMessage = async () => {
     }
 
     messages.value[roomId].push(data);
-    await nextTick();
-    messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
+    await scrollToBottom();
 };
 
 const onMessageCreated = async ({message}) => {
@@ -63,10 +69,7 @@ const onMessageCreated = async ({message}) => {
     await checkAndLoad(roomId);
     messages.value[roomId].push(message);
 
-    if (messagesRef.value) {
-        await nextTick();
-        messagesRef.value.scrollTop = messagesRef.value.scrollHeight;
-    }
+    await scrollToBottom();
 };
 
 Echo.private(`user.${props.user.id}.chat`)
@@ -77,6 +80,8 @@ let toggleChat = () => isExpanded.value = !isExpanded.value;
 const switchRoom = async newRoom => {
     await checkAndLoad(newRoom.id);
     currentRoom.value = newRoom;
+    currentMessage.value = '';
+    await scrollToBottom();
 };
 
 const loadMessages = async (roomId) => {
