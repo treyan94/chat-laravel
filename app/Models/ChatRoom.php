@@ -12,6 +12,14 @@ class ChatRoom extends Model
         'name',
     ];
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        // delete messages when chat room is deleted
+        static::deleting(static fn(ChatRoom $chatRoom) => $chatRoom->messages()->delete());
+    }
+
     /* Relations */
 
     public function messages(): HasMany
