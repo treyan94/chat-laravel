@@ -24,6 +24,6 @@ defineProps({
 
 <style scoped>
 .content {
-    @apply flex items-center justify-center h-screen text-center bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500 text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl;
+    @apply flex items-center justify-center h-[calc(100vh-74px)] text-center bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500 text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl;
 }
 </style>
