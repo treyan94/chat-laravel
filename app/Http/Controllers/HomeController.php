@@ -17,4 +17,14 @@ class HomeController extends Controller
     {
         return Inertia::render('Home', ['user' => Auth::user()]);
     }
+
+    public function page1(): Response
+    {
+        return Inertia::render('Page1', ['user' => Auth::user()]);
+    }
+
+    public function page2(): Response
+    {
+        return Inertia::render('Page2', ['user' => Auth::user()]);
+    }
 }

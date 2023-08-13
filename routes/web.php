@@ -18,8 +18,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'users'])->middleware('guest')->name('users');
 
-Route::group(['middleware' => 'auth:sanctum'], function () {
+Route::group(['middleware' => 'auth:sanctum'], static function () {
     Route::get('/home', [HomeController::class, 'home'])->name('home');
+    Route::get('/page1', [HomeController::class, 'page1'])->name('page1');
+    Route::get('/page2', [HomeController::class, 'page2'])->name('page2');
 
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 

@@ -13,9 +13,10 @@ defineProps({
 <template>
     <div class="h-screen">
         <Navigation/>
-        <div class="flex items-center justify-center h-screen text-center bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
+
+        <div class="flex items-center justify-center h-screen text-center bg-gradient-to-r from-blue-300 via-blue-400 to-blue-500 text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
             <ChatWidget :user="user" />
-            <p class="font-serif">Greetings, {{ user.name }}!</p>
+            <p class="font-serif">Welcome to Page1, {{ user.name }}!</p>
         </div>
     </div>
 </template>
