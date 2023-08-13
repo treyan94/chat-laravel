@@ -6,10 +6,23 @@ use App\Http\Requests\ChatRoomStoreRequest;
 use App\Models\ChatRoom;
 use Auth;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class ChatRoomController extends Controller
 {
+    public function store(ChatRoomStoreRequest $request): JsonResponse
+    {
+        $chatRoom = ChatRoom::create([
+            'name' => $request->input('name'),
+        ]);
+
+        $chatRoom->users()->attach([Auth::id(), $request->input('user_id')]);
+        $chatRoom->load('users');
+
+        return new JsonResponse([
+            'message' => 'Chat room created successfully',
+            'data' => $chatRoom,
+        ]);
+    }
 
     public function show(ChatRoom $chatRoom): JsonResponse
     {

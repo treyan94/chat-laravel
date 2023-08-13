@@ -23,5 +23,6 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
 
+    Route::post('/chat-rooms', [ChatRoomController::class, 'store'])->name('chat-rooms.store');
     Route::get('/chat-rooms/{chatRoom}', [ChatRoomController::class, 'show'])->name('chat-rooms.show');
 });

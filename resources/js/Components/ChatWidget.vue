@@ -85,6 +85,16 @@ const loadMessages = async (roomId) => {
 };
 
 const checkAndLoad = async (roomId) => !messages.value[roomId] && await loadMessages(roomId);
+
+const createRoom = async (user) => {
+    const {data} = (await axios.post('/chat-rooms', {
+        user_id: user.id,
+        name: `${user.name} & ${props.user.name}`,
+    })).data;
+
+    page.props.chatRooms.push(data);
+    await switchRoom(data);
+};
 </script>
 
 
@@ -106,14 +116,19 @@ const checkAndLoad = async (roomId) => !messages.value[roomId] && await loadMess
                 >
                     {{ room.name }}
                 </button>
-                <hr/>
-                <div class="room-title">Other users:</div>
-                <button
-                    class="room-btn"
-                    v-for="user in filteredUsers"
-                >
-                    {{ user.name }}
-                </button>
+                <template v-if="filteredUsers.length">
+                    <hr/>
+                    <div class="room-title">Other users:</div>
+                    <div class="users-container">
+                        <button
+                            class="room-btn"
+                            v-for="user in filteredUsers"
+                            @click="createRoom(user)"
+                        >
+                            {{ user.name }}
+                        </button>
+                    </div>
+                </template>
             </div>
 
             <div v-else class="messages" ref="messagesRef">
@@ -262,6 +277,17 @@ const checkAndLoad = async (roomId) => !messages.value[roomId] && await loadMess
     justify-content: flex-start;
     gap: 10px;
     background-color: #f0f0f0; /* slightly dark */
+}
+
+.users-container {
+    display: block;
+    overflow-y: auto;
+    max-height: 200px;
+    margin-bottom: 10px;
+}
+
+.users-container .room-btn {
+    margin-bottom: 5px;
 }
 
 .room-title {
