@@ -1,5 +1,5 @@
 <script setup>
-import {computed, nextTick, reactive, ref} from 'vue';
+import {computed, nextTick, reactive, ref, onBeforeUnmount} from 'vue';
 import {usePage} from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -74,6 +74,10 @@ const onMessageCreated = async ({message}) => {
 
 Echo.private(`user.${props.user.id}.chat`)
     .listen('.message.created', onMessageCreated);
+
+onBeforeUnmount(() => {
+    Echo.leave(`user.${props.user.id}.chat`);
+});
 
 let toggleChat = () => isExpanded.value = !isExpanded.value;
 
