@@ -12,7 +12,19 @@ const props = defineProps({
 const page = usePage();
 
 const users = ref(page.props.users);
-const filteredUsers = computed(() => users.value.filter(user => user.id !== props.user.id));
+const filteredUsers = computed(() => users.value.filter(user => {
+    if (user.id === props.user.id) {
+        return false;
+    }
+
+    for (const room of chatRooms) {
+        if (room.users?.some(u => u.id === user.id)) {
+            return false;
+        }
+    }
+
+    return true;
+}));
 
 let currentRoom = ref(null);
 let chatRooms = reactive(page.props.chatRooms);
