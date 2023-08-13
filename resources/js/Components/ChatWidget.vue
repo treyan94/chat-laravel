@@ -280,13 +280,13 @@ const createRoom = async (user) => {
 }
 
 .room-selector {
-    flex-grow: 1;
     padding: 20px;
-    display: flex;
     flex-direction: column;
     justify-content: flex-start;
     gap: 10px;
     background-color: #f0f0f0; /* slightly dark */
+    max-height: 350px;
+    overflow-y: auto;
 }
 
 .users-container {
@@ -294,10 +294,6 @@ const createRoom = async (user) => {
     overflow-y: auto;
     max-height: 200px;
     margin-bottom: 10px;
-}
-
-.users-container .room-btn {
-    margin-bottom: 5px;
 }
 
 .room-title {
@@ -309,6 +305,7 @@ const createRoom = async (user) => {
 
 .room-btn {
     padding: 10px;
+    margin-bottom: 5px;
     border-radius: 5px; /* rounded edges */
     border: none;
     background: #0084ff;
