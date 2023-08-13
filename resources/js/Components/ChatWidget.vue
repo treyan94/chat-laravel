@@ -1,5 +1,6 @@
 <script setup>
 import {computed, nextTick, reactive, ref, onBeforeUnmount} from 'vue';
+import {useToast} from "vue-toastification";
 import {usePage} from "@inertiajs/vue3";
 
 const props = defineProps({
@@ -9,6 +10,7 @@ const props = defineProps({
     },
 })
 
+const toast = useToast();
 const page = usePage();
 
 const users = ref(page.props.users);
@@ -64,12 +66,27 @@ const sendMessage = async () => {
 };
 
 const onMessageCreated = async ({message}) => {
-    const roomId = message.chat_room_id;
+    const { chat_room_id: roomId } = message;
 
     await checkAndLoad(roomId);
     messages.value[roomId].push(message);
 
+    const room = chatRooms.find(room => room.id === roomId);
+    if (room) {
+        newMessageToast(message, room);
+    }
+
     await scrollToBottom();
+};
+
+const newMessageToast = (message, room) => {
+    toast.info(`New message in ${room.name}`, {
+        onClick: async () => {
+            await switchRoom(room);
+            isExpanded.value = true;
+            await scrollToBottom();
+        },
+    });
 };
 
 Echo.private(`user.${props.user.id}.chat`)
