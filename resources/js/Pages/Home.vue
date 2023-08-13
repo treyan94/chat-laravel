@@ -1,7 +1,12 @@
-<script setup>
-import ChatWidget from "../Components/ChatWidget.vue";
-import Navigation from "../Components/Navigation.vue";
+<script>
+import Layout from "./Layout.vue";
 
+export default {
+    layout: Layout,
+}
+</script>
+
+<script setup>
 defineProps({
     user: {
         type: Object,
@@ -11,13 +16,7 @@ defineProps({
 </script>
 
 <template>
-    <div class="h-screen">
-        <Navigation/>
-        <div class="flex items-center justify-center h-screen text-center bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
-            <ChatWidget :user="user" />
-            <p class="font-serif">Greetings, {{ user.name }}!</p>
-        </div>
-    </div>
+    <p class="font-serif">Greetings, {{ user.name }}!</p>
 </template>
 
 <style scoped>
