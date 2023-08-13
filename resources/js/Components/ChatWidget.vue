@@ -106,7 +106,13 @@ const createRoom = async (user) => {
 <template>
     <div class="chat-widget">
         <div class="header">
-            <div>{{ currentRoom ? currentRoom.name : props.user.name }}</div>
+            <div v-if="!currentRoom">{{ props.user.name }}</div>
+            <div v-else class="room-info">
+                <button class="back-btn" @click="currentRoom = null">Back</button>
+                <span class="text-sm">
+                    {{ currentRoom.name }}
+                </span>
+            </div>
             <button @click="toggleChat" class="toggle-btn">
                 {{ isExpanded ? '-' : '+' }}
             </button>
@@ -137,7 +143,6 @@ const createRoom = async (user) => {
             </div>
 
             <div v-else class="messages" ref="messagesRef">
-                <button class="back-btn" @click="currentRoom = null">Go back</button>
                 <div
                     v-for="(message, index) in messages[currentRoom?.id]"
                     :key="index"
@@ -326,8 +331,13 @@ const createRoom = async (user) => {
     box-shadow: 0 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
+.room-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .back-btn {
-    margin: 5px;
     padding: 5px 10px;
     border: none;
     background: none;
