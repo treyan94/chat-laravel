@@ -40,6 +40,7 @@ To install Laravel Vue Chat, follow these steps:
     ```bash
     cp .env.example .env
     ```
+   You will need to get API keys for [Pusher](https://pusher.com/) and optionally [OpenAI](https://openai.com/) to use the chatbot.
 
 7. Generate a new application key:
     ```bash
