@@ -250,6 +250,7 @@ const createRoom = async (user) => {
     border-radius: 10px;
     background: #f0f0f0;
     line-height: 1.5;
+    text-align: left;
 }
 
 .message.my-message {
