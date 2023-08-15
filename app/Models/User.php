@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Cache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -54,5 +55,20 @@ class User extends Authenticatable
     public function chatRooms(): BelongsToMany
     {
         return $this->belongsToMany(ChatRoom::class);
+    }
+
+    /* Helpers */
+
+    public static function getChatGptUserId(bool $fresh = false)
+    {
+        $key = 'gpt-chat-bot-id';
+
+        if ($fresh) {
+            Cache::forget($key);
+        }
+
+        return Cache::remember($key, 60 * 60 * 24, static function () {
+            return self::where('email', config('openai.gpt_user_email'))->first(['id'])->id;
+        });
     }
 }
