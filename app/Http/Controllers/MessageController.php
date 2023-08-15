@@ -17,6 +17,10 @@ class MessageController extends Controller
 
         $message->save();
 
+        if ($message->chatRoom->hasGptUser) {
+            $message->chatRoom->addGptMessage();
+        }
+
         return new JsonResponse([
             'data' => $message,
         ]);
