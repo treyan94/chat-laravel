@@ -74,7 +74,7 @@ const onMessageCreated = async ({message}) => {
     messages.value[roomId].push(message);
 
     const room = chatRooms.find(room => room.id === roomId);
-    if (room && room.id !== currentRoom.value.id) {
+    if (room && room.id !== currentRoom.value?.id) {
         newMessageToast(message, room);
     }
 
