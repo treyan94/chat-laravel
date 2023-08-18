@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Models\Message;
+use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
@@ -15,29 +16,18 @@ class MessageCreatedEvent implements ShouldBroadcast
 
     public Message $message;
 
-    public int $from;
-
-    public int $to;
-
     public function __construct(Message $message)
     {
         $this->message = $message;
-
-        $this->from = $message->user_id;
-        $this->to = $message
-            ->chatRoom
-            ->users()
-            ->where('users.id', '!=', $message->user_id)
-            ->first()
-            ->id;
     }
 
     public function broadcastOn(): array
     {
-        return [
-            new PrivateChannel('user.' . $this->from . '.chat'),
-            new PrivateChannel('user.' . $this->to . '.chat'),
-        ];
+        return $this->message
+            ->chatRoom
+            ->users
+            ->map(fn(User $user) => new PrivateChannel('user.' . $user->id . '.chat'))
+            ->toArray();
     }
 
     public function broadcastWith(): array
