@@ -2,6 +2,7 @@
 import {computed, nextTick, reactive, ref, onBeforeUnmount} from 'vue';
 import {useToast} from "vue-toastification";
 import {usePage} from "@inertiajs/vue3";
+import AddUserToRoom from "./AddUserToRoom.vue";
 
 const props = defineProps({
     user: {
@@ -144,6 +145,12 @@ const getUserName = (message) => {
                     {{ currentRoom.name }}
                 </span>
             </div>
+            <AddUserToRoom
+                v-if="currentRoom"
+                :users="users"
+                :room="currentRoom"
+                @add-user="currentRoom?.users.push($event)"
+            />
             <button @click="toggleChat" class="toggle-btn">
                 {{ isExpanded ? '-' : '+' }}
             </button>
