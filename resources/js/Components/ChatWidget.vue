@@ -121,6 +121,16 @@ const createRoom = async (user) => {
     page.props.chatRooms.push(data);
     await switchRoom(data);
 };
+
+const getUserName = (message) => {
+    const room = chatRooms.find(room => room.id === message.chat_room_id);
+    if (!room) {
+        return '';
+    }
+
+    const user = room.users.find(u => u.id === message.user_id);
+    return user ? user.name : '';
+};
 </script>
 
 
@@ -170,6 +180,9 @@ const createRoom = async (user) => {
                     class="message"
                     :class="{'my-message': message.user_id === props.user.id}"
                 >
+                    <div class="user-name">
+                        {{ getUserName(message) }}
+                    </div>
                     <p>{{ message.body }}</p>
                 </div>
             </div>
@@ -257,6 +270,16 @@ const createRoom = async (user) => {
     align-self: flex-end;
     background: #0084ff;
     color: white;
+}
+
+
+.user-name {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.my-message .user-name {
+    color: #add8e6; /* light blue color */
 }
 
 .footer {
