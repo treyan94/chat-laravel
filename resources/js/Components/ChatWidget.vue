@@ -18,11 +18,15 @@ const page = usePage();
 
 const users = ref(page.props.users);
 
-let currentRoom = ref(null);
+const chatState = reactive({
+    currentRoom: null,
+    currentMessage: '',
+    isExpanded: false,
+    infoMode: false,
+});
+
 let chatRooms = reactive(page.props.chatRooms);
-let currentMessage = ref('');
 let messages = ref({});
-let isExpanded = ref(false);
 
 let messagesRef = ref(null);
 const scrollToBottom = async () => {
@@ -33,19 +37,19 @@ const scrollToBottom = async () => {
 };
 
 const sendMessage = async () => {
-    const trimmedMessage = currentMessage.value.trim();
+    const trimmedMessage = chatState.currentMessage.trim();
     if (trimmedMessage === '') {
         return;
     }
 
-    const roomId = currentRoom.value.id;
+    const roomId = chatState.currentRoom.id;
 
     const {data} = (await axios.post('/messages', {
         body: trimmedMessage,
         chat_room_id: roomId,
     })).data;
 
-    currentMessage.value = '';
+    chatState.currentMessage = '';
     // add the message to the messages object
     if (!messages.value[roomId]) {
         messages.value[roomId] = [];
@@ -62,7 +66,7 @@ const onMessageCreated = async ({message}) => {
     messages.value[roomId].push(message);
 
     const room = chatRooms.find(room => room.id === roomId);
-    if (room && room.id !== currentRoom.value?.id) {
+    if (room && room.id !== chatState.currentRoom?.id) {
         newMessageToast(message, room);
     }
 
@@ -73,7 +77,7 @@ const newMessageToast = (message, room) => {
     toast.info(`New message in ${room.name}`, {
         onClick: async () => {
             await switchRoom(room);
-            isExpanded.value = true;
+            chatState.isExpanded = true;
             await scrollToBottom();
         },
     });
@@ -82,13 +86,13 @@ const newMessageToast = (message, room) => {
 Echo.private(`user.${props.user.id}.chat`).listen('.message.created', onMessageCreated);
 onBeforeUnmount(() => Echo.leave(`user.${props.user.id}.chat`));
 
-const toggleChat = () => isExpanded.value = !isExpanded.value;
+const toggleChat = () => chatState.isExpanded = !chatState.isExpanded;
 const checkAndLoad = async (roomId) => !messages.value[roomId] && await loadMessages(roomId);
 
 const switchRoom = async newRoom => {
     await checkAndLoad(newRoom.id);
-    currentRoom.value = newRoom;
-    currentMessage.value = '';
+    chatState.currentRoom = newRoom;
+    chatState.currentMessage = '';
     await scrollToBottom();
 };
 
@@ -117,15 +121,13 @@ const getUserName = (message) => {
     return user ? user.name : '';
 };
 
-const infoMode = ref(false);
-
 const onBackClick = () => {
-    if (infoMode.value) {
-        infoMode.value = false;
+    if (chatState.infoMode) {
+        chatState.infoMode = false;
         return;
     }
 
-    currentRoom.value = null;
+    chatState.currentRoom = null;
 };
 </script>
 
@@ -133,32 +135,32 @@ const onBackClick = () => {
 <template>
     <div class="chat-widget">
         <div class="header">
-            <div v-if="!currentRoom">{{ props.user.name }}</div>
+            <div v-if="!chatState.currentRoom">{{ props.user.name }}</div>
             <div v-else class="room-info">
                 <button class="back-btn mr-1" @click="onBackClick">Back</button>
-                <span class="text-xs cursor-pointer" @click="infoMode = true">
-                    {{ currentRoom.name }}
+                <span class="text-xs cursor-pointer" @click="chatState.infoMode = true">
+                    {{ chatState.currentRoom.name }}
                 </span>
             </div>
             <div class="flex">
                 <AddUserToRoom
-                    v-if="currentRoom"
+                    v-if="chatState.currentRoom"
                     class="ml-1 flex-shrink-0"
                     :users="users"
-                    :room="currentRoom"
-                    @add-user="currentRoom?.users.push($event)"
+                    :room="chatState.currentRoom"
+                    @add-user="chatState.currentRoom?.users.push($event)"
                 />
                 <button
                     @click="toggleChat"
                     class="toggle-btn ml-1"
                 >
-                    {{ isExpanded ? '-' : '+' }}
+                    {{ chatState.isExpanded ? '-' : '+' }}
                 </button>
             </div>
         </div>
-        <div class="content" v-show="isExpanded">
+        <div class="content" v-show="chatState.isExpanded">
             <RoomSelector
-                v-if="!currentRoom"
+                v-if="!chatState.currentRoom"
                 :chat-rooms="chatRooms"
                 :users="users"
                 @switch-room="switchRoom"
@@ -167,8 +169,8 @@ const onBackClick = () => {
 
             <template v-else>
                 <ChatInfo
-                    v-if="infoMode"
-                    :room="currentRoom"
+                    v-if="chatState.infoMode"
+                    :room="chatState.currentRoom"
                 />
                 <div
                     v-else
@@ -176,14 +178,14 @@ const onBackClick = () => {
                     ref="messagesRef"
                 >
                     <p
-                        v-if="!messages[currentRoom?.id].length"
+                        v-if="!messages[chatState.currentRoom?.id].length"
                         class="text-center"
                     >
                         No messages yet
                     </p>
                     <template v-else>
                         <div
-                            v-for="(message, index) in messages[currentRoom?.id]"
+                            v-for="(message, index) in messages[chatState.currentRoom?.id]"
                             :key="index"
                             class="message"
                             :class="{'my-message': message.user_id === props.user.id}"
@@ -197,10 +199,10 @@ const onBackClick = () => {
                 </div>
             </template>
 
-            <div class="footer" v-if="currentRoom">
+            <div class="footer" v-if="chatState.currentRoom">
                 <input
                     type="text"
-                    v-model="currentMessage"
+                    v-model="chatState.currentMessage"
                     @keydown.enter="sendMessage"
                     placeholder="Type your message..."
                     class="input-field"
