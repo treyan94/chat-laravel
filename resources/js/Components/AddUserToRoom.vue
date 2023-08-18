@@ -1,6 +1,7 @@
 <script setup>
 import {computed, ref} from "vue";
 import {useToast} from "vue-toastification";
+import {onClickOutside} from "@vueuse/core";
 
 const toast = useToast();
 
@@ -17,6 +18,8 @@ const props = defineProps({
 
 const emit = defineEmits(['addUser']);
 
+const dropdown = ref(null);
+onClickOutside(dropdown, () => openUserDropdown.value = false);
 const openUserDropdown = ref(false);
 
 // filter out the users that are already in the room
@@ -46,6 +49,7 @@ const addUserToRoom = async (user) => {
             Add User
         </button>
         <ul
+            ref="dropdown"
             v-if="openUserDropdown"
             class="user-dropdown absolute right-0 mt-2 w-48 bg-white border rounded shadow-xl z-10 overflow-y-auto max-h-48"
         >
