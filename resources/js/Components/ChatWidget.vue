@@ -3,6 +3,7 @@ import {computed, nextTick, reactive, ref, onBeforeUnmount} from 'vue';
 import {useToast} from "vue-toastification";
 import {usePage} from "@inertiajs/vue3";
 import AddUserToRoom from "./AddUserToRoom.vue";
+import ChatInfo from "./ChatInfo.vue";
 
 const props = defineProps({
     user: {
@@ -132,6 +133,17 @@ const getUserName = (message) => {
     const user = room.users.find(u => u.id === message.user_id);
     return user ? user.name : '';
 };
+
+const infoMode = ref(false);
+
+const onBackClick = () => {
+    if (infoMode.value) {
+        infoMode.value = false;
+        return;
+    }
+
+    currentRoom.value = null;
+};
 </script>
 
 
@@ -140,8 +152,8 @@ const getUserName = (message) => {
         <div class="header">
             <div v-if="!currentRoom">{{ props.user.name }}</div>
             <div v-else class="room-info">
-                <button class="back-btn" @click="currentRoom = null">Back</button>
-                <span class="text-sm">
+                <button class="back-btn mr-1" @click="onBackClick">Back</button>
+                <span class="text-xs cursor-pointer" @click="infoMode = true">
                     {{ currentRoom.name }}
                 </span>
             </div>
@@ -186,19 +198,37 @@ const getUserName = (message) => {
                 </template>
             </div>
 
-            <div v-else class="messages" ref="messagesRef">
+            <template v-else>
+                <ChatInfo
+                    v-if="infoMode"
+                    :room="currentRoom"
+                />
                 <div
-                    v-for="(message, index) in messages[currentRoom?.id]"
-                    :key="index"
-                    class="message"
-                    :class="{'my-message': message.user_id === props.user.id}"
+                    v-else
+                    class="messages"
+                    ref="messagesRef"
                 >
-                    <div class="user-name">
-                        {{ getUserName(message) }}
-                    </div>
-                    <p>{{ message.body }}</p>
+                    <p
+                        v-if="!messages[currentRoom?.id].length"
+                        class="text-center"
+                    >
+                        No messages yet
+                    </p>
+                    <template v-else>
+                        <div
+                            v-for="(message, index) in messages[currentRoom?.id]"
+                            :key="index"
+                            class="message"
+                            :class="{'my-message': message.user_id === props.user.id}"
+                        >
+                            <div class="user-name">
+                                {{ getUserName(message) }}
+                            </div>
+                            <p>{{ message.body }}</p>
+                        </div>
+                    </template>
                 </div>
-            </div>
+            </template>
 
             <div class="footer" v-if="currentRoom">
                 <input
