@@ -67,7 +67,7 @@ const sendMessage = async () => {
 };
 
 const onMessageCreated = async ({message}) => {
-    const { chat_room_id: roomId } = message;
+    const {chat_room_id: roomId} = message;
 
     await checkAndLoad(roomId);
     messages.value[roomId].push(message);
@@ -145,15 +145,21 @@ const getUserName = (message) => {
                     {{ currentRoom.name }}
                 </span>
             </div>
-            <AddUserToRoom
-                v-if="currentRoom"
-                :users="users"
-                :room="currentRoom"
-                @add-user="currentRoom?.users.push($event)"
-            />
-            <button @click="toggleChat" class="toggle-btn">
-                {{ isExpanded ? '-' : '+' }}
-            </button>
+            <div class="flex">
+                <AddUserToRoom
+                    v-if="currentRoom"
+                    class="ml-1 flex-shrink-0"
+                    :users="users"
+                    :room="currentRoom"
+                    @add-user="currentRoom?.users.push($event)"
+                />
+                <button
+                    @click="toggleChat"
+                    class="toggle-btn ml-1"
+                >
+                    {{ isExpanded ? '-' : '+' }}
+                </button>
+            </div>
         </div>
         <div class="content" v-show="isExpanded">
             <div v-if="!currentRoom" class="room-selector">
@@ -256,7 +262,7 @@ const getUserName = (message) => {
 .messages {
     padding: 20px;
     flex-grow: 1;
-    max-height: 350px;
+    height: 350px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -387,7 +393,6 @@ const getUserName = (message) => {
 }
 
 .back-btn {
-    padding: 5px 10px;
     border: none;
     background: none;
     color: #0084ff;

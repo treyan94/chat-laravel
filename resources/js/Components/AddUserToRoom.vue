@@ -43,10 +43,10 @@ const addUserToRoom = async (user) => {
 <template>
     <div class="relative">
         <button
-            class="add-user-btn text-white bg-blue-500 px-4 py-2 rounded"
+            class="add-user-btn text-blue-500 rounded text-sm font-medium"
             @click="openUserDropdown = !openUserDropdown"
         >
-            Add User
+            +
         </button>
         <ul
             ref="dropdown"
