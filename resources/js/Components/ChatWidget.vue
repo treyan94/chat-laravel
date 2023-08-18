@@ -1,5 +1,5 @@
 <script setup>
-import {computed, nextTick, reactive, ref, onBeforeUnmount} from 'vue';
+import {nextTick, reactive, ref, onBeforeUnmount} from 'vue';
 import {useToast} from "vue-toastification";
 import {usePage} from "@inertiajs/vue3";
 import AddUserToRoom from "./AddUserToRoom.vue";
@@ -17,19 +17,6 @@ const toast = useToast();
 const page = usePage();
 
 const users = ref(page.props.users);
-const filteredUsers = computed(() => users.value.filter(user => {
-    if (user.id === props.user.id) {
-        return false;
-    }
-
-    for (const room of chatRooms) {
-        if (room.users?.some(u => u.id === user.id)) {
-            return false;
-        }
-    }
-
-    return true;
-}));
 
 let currentRoom = ref(null);
 let chatRooms = reactive(page.props.chatRooms);
@@ -92,14 +79,11 @@ const newMessageToast = (message, room) => {
     });
 };
 
-Echo.private(`user.${props.user.id}.chat`)
-    .listen('.message.created', onMessageCreated);
+Echo.private(`user.${props.user.id}.chat`).listen('.message.created', onMessageCreated);
+onBeforeUnmount(() => Echo.leave(`user.${props.user.id}.chat`));
 
-onBeforeUnmount(() => {
-    Echo.leave(`user.${props.user.id}.chat`);
-});
-
-let toggleChat = () => isExpanded.value = !isExpanded.value;
+const toggleChat = () => isExpanded.value = !isExpanded.value;
+const checkAndLoad = async (roomId) => !messages.value[roomId] && await loadMessages(roomId);
 
 const switchRoom = async newRoom => {
     await checkAndLoad(newRoom.id);
@@ -112,8 +96,6 @@ const loadMessages = async (roomId) => {
     const {data} = (await axios.get(`/chat-rooms/${roomId}`)).data;
     messages.value[roomId] = data.messages || [];
 };
-
-const checkAndLoad = async (roomId) => !messages.value[roomId] && await loadMessages(roomId);
 
 const createRoom = async (user) => {
     const {data} = (await axios.post('/chat-rooms', {
