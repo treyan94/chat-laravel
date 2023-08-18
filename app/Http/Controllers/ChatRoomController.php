@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChatRoomAddUsersRequest;
 use App\Http\Requests\ChatRoomStoreRequest;
 use App\Models\ChatRoom;
 use Auth;
@@ -34,6 +35,16 @@ class ChatRoomController extends Controller
 
         return new JsonResponse([
             'data' => $chatRoom,
+        ]);
+    }
+
+    public function addUser(ChatRoomAddUsersRequest $request, ChatRoom $chatRoom): JsonResponse
+    {
+        $chatRoom->users()->syncWithoutDetaching($request->input('users'));
+
+        return new JsonResponse([
+            'message' => 'Users added successfully',
+            'data' => $chatRoom->load('users'),
         ]);
     }
 }

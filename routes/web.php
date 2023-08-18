@@ -27,4 +27,5 @@ Route::group(['middleware' => 'auth:sanctum'], static function () {
 
     Route::post('/chat-rooms', [ChatRoomController::class, 'store'])->name('chat-rooms.store');
     Route::get('/chat-rooms/{chatRoom}', [ChatRoomController::class, 'show'])->name('chat-rooms.show');
+    Route::post('/chat-rooms/{chatRoom}/users', [ChatRoomController::class, 'addUser'])->name('chat-rooms.users.add');
 });
