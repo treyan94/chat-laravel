@@ -151,7 +151,7 @@ onBeforeUnmount(() => Echo.leave(`user.${props.user.id}.chat`));
             </div>
             <div class="flex">
                 <AddUserToRoom
-                    v-if="chatState.currentRoom"
+                    v-if="chatState.currentRoom && chatState.isExpanded"
                     class="ml-1 flex-shrink-0"
                     :users="users"
                     :room="chatState.currentRoom"
