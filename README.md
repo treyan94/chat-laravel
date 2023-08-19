@@ -1,15 +1,18 @@
 # Laravel Vue Chat
 
-Laravel Vue Chat is a test task that was created during an interview process. This project uses Laravel 10, Vue 3, and Inertia.js to create a comprehensive chat application. Additionally, it features an optional chat bot that is powered by OpenAI GPT.
+Laravel Vue Chat is a demo project used originally for an interview task. It uses Laravel 10 for the backend, Vue 3 for the frontend, and marries the two using Inertia.js. This project provides features of a holistic chat application, with an optional AI chatbot powered by OpenAI's GPT.
+
+Laravel is a robust MVC PHP framework, Vue.js is a progressive JavaScript framework for building user interfaces, and Inertia.js is a library that combines the best of both to create a single-page application.
+
+## Prerequisites
+Before you begin, ensure you have the following installed on your local development machine:
+
+- PHP 8.1 or later
+- Composer - A PHP dependency management tool.
+- Node.js and NPM - Node.js is a server-side JavaScript runtime environment. NPM is a package manager for Node.js.
 
 ## Installation
-
-Before you install Laravel Vue Chat, ensure you have the following installed:
-- PHP 8.1
-- Composer
-- Node.js and NPM
-
-To install Laravel Vue Chat, follow these steps:
+Follow these steps to setup the Laravel Vue Chat:
 
 1. Clone the repository:
     ```bash
@@ -21,43 +24,54 @@ To install Laravel Vue Chat, follow these steps:
     cd chat-laravel
     ```
 
-3. Install Composer dependencies:
+3. Install the Composer dependencies:
     ```bash
     composer install
     ```
 
-4. Install NPM dependencies:
+4. Install the NPM dependencies:
     ```bash
     npm install
     ```
 
-5. Build frontend assets:
+5. Create a copy of your `.env.example` file and rename it to `.env`. This file houses all your environment variables.
+    ```bash
+    cp .env.example .env
+    ```
+   Obtain your API keys for [Pusher](https://pusher.com/) which is used for enabling real-time bidirectional communication and optionally for [OpenAI](https://openai.com/) if you plan on using the AI Chatbot.
+
+   **Note**: Be sure you enter your Pusher API keys **BEFORE** proceeding to the next step.
+
+6. Build your frontend assets:
     ```bash
     npm run build
     ```
 
-6. Copy `.env.example` to `.env`, and configure your environment variables:
-    ```bash
-    cp .env.example .env
-    ```
-   You will need to get API keys for [Pusher](https://pusher.com/) and optionally [OpenAI](https://openai.com/) to use the chatbot.
-
-7. Generate a new application key:
+7. Generate and set your application key:
     ```bash
     php artisan key:generate
     ```
 
-8. Migrate and seed the database:
+8. Update the database settings in the `.env` file. Here's an example if you're using SQLite:
+    ```plaintext
+    DB_CONNECTION=sqlite
+    DB_DATABASE=/absolute/path/to/database.sqlite
+    ```
+   Remember to replace `/absolute/path/to/database.sqlite` with your actual `sqlite` database file's path.
+
+9. Execute the database migrations and seeding:
     ```bash
     php artisan migrate --seed
     ```
 
-9. Start the queue worker:
+10. Bootstrap the queue worker:
     ```bash
     php artisan queue:work
     ```
 
-10. Start the application:
+11. Fire up the application:
     ```bash
     php artisan serve
     ```
+
+Upon successful setup, you will be able to access the application from your specified port, usually: `http://localhost:8000`.
