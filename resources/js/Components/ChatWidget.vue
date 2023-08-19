@@ -145,7 +145,7 @@ onBeforeUnmount(() => Echo.leave(`user.${props.user.id}.chat`));
             <div v-if="!chatState.currentRoom">{{ props.user.name }}</div>
             <div v-else class="room-info">
                 <button class="back-btn mr-1" @click="onBackClick">Back</button>
-                <span class="text-xs cursor-pointer" @click="chatState.infoMode = true">
+                <span class="text-xs cursor-pointer hover:underline" @click="chatState.infoMode = true">
                     {{ chatState.currentRoom.name }}
                 </span>
             </div>
