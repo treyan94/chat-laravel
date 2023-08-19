@@ -52,12 +52,20 @@ Follow these steps to setup the Laravel Vue Chat:
     php artisan key:generate
     ```
 
-8. Update the database settings in the `.env` file. Here's an example if you're using SQLite:
-    ```plaintext
-    DB_CONNECTION=sqlite
-    DB_DATABASE=/absolute/path/to/database.sqlite
-    ```
-   Remember to replace `/absolute/path/to/database.sqlite` with your actual `sqlite` database file's path.
+8. Set up the database in your `.env` file. If you are using SQLite, you first need to create a new SQLite database file. This can be done with the touch command in your terminal:
+
+   ```bash
+   touch database/database.sqlite
+   ```
+
+   After creating the file, update your `.env` to reflect these database settings:
+
+   ```plaintext
+   DB_CONNECTION=sqlite
+   DB_DATABASE=/absolute/path/to/database/database.sqlite
+   ```
+
+   Remember to replace `/absolute/path/to/database/database.sqlite` with the actual path to your `sqlite` database file. Your SQLite database is now ready for the migrations.
 
 9. Execute the database migrations and seeding:
     ```bash
