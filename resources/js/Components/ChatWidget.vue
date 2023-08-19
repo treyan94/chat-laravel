@@ -6,6 +6,11 @@ import AddUserToRoom from "./AddUserToRoom.vue";
 import ChatInfo from "./ChatInfo.vue";
 import RoomSelector from "./RoomSelector.vue";
 
+// Initializations
+const toast = useToast();
+const page = usePage();
+
+// Prop Section
 const props = defineProps({
     user: {
         type: Object,
@@ -13,10 +18,11 @@ const props = defineProps({
     },
 })
 
-const toast = useToast();
-const page = usePage();
-
+// Variable Definitions
 const users = ref(page.props.users);
+let chatRooms = reactive(page.props.chatRooms);
+let messages = ref({});
+let messagesRef = ref(null);
 
 const chatState = reactive({
     currentRoom: null,
@@ -25,10 +31,7 @@ const chatState = reactive({
     infoMode: false,
 });
 
-let chatRooms = reactive(page.props.chatRooms);
-let messages = ref({});
-
-let messagesRef = ref(null);
+// Functions
 const scrollToBottom = async () => {
     await nextTick();
     if (messagesRef.value) {
@@ -83,9 +86,6 @@ const newMessageToast = (message, room) => {
     });
 };
 
-Echo.private(`user.${props.user.id}.chat`).listen('.message.created', onMessageCreated);
-onBeforeUnmount(() => Echo.leave(`user.${props.user.id}.chat`));
-
 const toggleChat = () => chatState.isExpanded = !chatState.isExpanded;
 const checkAndLoad = async (roomId) => !messages.value[roomId] && await loadMessages(roomId);
 
@@ -129,6 +129,13 @@ const onBackClick = () => {
 
     chatState.currentRoom = null;
 };
+
+
+// Event Listener Section
+Echo.private(`user.${props.user.id}.chat`).listen('.message.created', onMessageCreated);
+
+// Lifecycle Hooks
+onBeforeUnmount(() => Echo.leave(`user.${props.user.id}.chat`));
 </script>
 
 
